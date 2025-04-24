@@ -113,36 +113,42 @@ void passiveMouseMotion(int x, int y) {
     glutPostRedisplay();
 }
 
-void drawHouse() {
+void drawHouse(float x, float y) {
     glPushMatrix();
     glColor3f(1.0f, 1.0f, 1.0f); 
-    glTranslatef(0.0f, 0.0f, 0.0f);
+    glTranslatef(x, 0.2f, y);
     glutSolidCube(0.5);
     glPopMatrix();
 
     glPushMatrix();
     glColor3f(1.0f, 0.0f, 0.0f);  
-    glTranslatef(0.0f, 0.2f, 0.0f); 
+    glTranslatef(x, 0.4f, y); 
     glRotatef(-90, 1.0f, 0.0f, 0.0f);
-    glRotatef(90, 0.0f, 0.0f, 1.0f);
-    glutSolidCone(0.5, 1, 4, 4);
+    glRotatef(45, 0.0f, 0.0f, 1.0f);
+    glutSolidCone(0.5, 0.5, 4, 4);
     glPopMatrix();
 }
 
-void drawTree() {
-    // Tronco del árbol (cilindro)
+void drawTree(float x, float y) {
     glPushMatrix();
     glColor3f(0.55f, 0.27f, 0.07f);  
-    glTranslatef(2.0f, 0.5f, 0.0f);  
+    glTranslatef(x, 0.0f, y);  
     glRotatef(-90, 1.0f, 0.0f, 0.0f);  
-    glutSolidCone(0.3f, 1.0f, 20, 20);
+    glutSolidCone(0.1f, 1.0f, 20, 20);
     glPopMatrix();
 
-    // Hojas del árbol (esfera)
     glPushMatrix();
-    glColor3f(0.0f, 1.0f, 0.0f);  // Color verde
-    glTranslatef(2.0f, 1.1f, 0.0f);  // Mover arriba del tronco
-    glutSolidSphere(0.3, 20, 20);  // Esfera con radio 0.3
+    glColor3f(0.0f, 1.0f, 0.0f); 
+    glTranslatef(x, 1.0f, y);  
+    glutSolidSphere(0.3, 20, 20);  
+    glPopMatrix();
+}
+
+void drawStone(float x, float y) {
+    glPushMatrix();
+    glColor3f(0.5f, 0.5f, 0.5f);
+    glTranslatef(x, 0.0f, y); 
+    glutSolidSphere(0.3, 20, 20);  
     glPopMatrix();
 }
 
@@ -155,20 +161,24 @@ void drawObjects()
     float y = radius_sun * sin(angle_sun * M_PI / 180.0f);
     glTranslatef(x, y, 0.0f);  // Mover la esfera en un círculo
     glRotatef(rotation_sun, 0.0f, 0.0f, 1);
-    glColor3f(1.0f, 1.0f, 0.0f);  // Azul
+    glColor3f(1.0f, 1.0f, 0.0f);
     glutWireSphere(0.1f, 20, 20);
     glPopMatrix();
 
     //Ground
     glColor3f(0.2f, 0.6f, 0.2f);  // Color verde para el plano
     glBegin(GL_QUADS);
-    glVertex3f(-2.0f, -0.05f, -2.0f);
-    glVertex3f(-2.0f, -0.05f, 2.0f);
-    glVertex3f(2.0f, -0.05f, 2.0f);
-    glVertex3f(2.0f, -0.05f, -2.0f);
+    glVertex3f(-4.0f, -0.05f, -4.0f);
+    glVertex3f(-4.0f, -0.05f, 4.0f);
+    glVertex3f(4.0f, -0.05f, 4.0f);
+    glVertex3f(4.0f, -0.05f, -4.0f);
     glEnd();
 
-    drawHouse();
+    drawHouse(2,2);
+    drawHouse(1,1);
+    drawTree(0, 0);
+    drawTree(2.2, 2.4);
+    drawStone(.5, .5);
 }
 
 
