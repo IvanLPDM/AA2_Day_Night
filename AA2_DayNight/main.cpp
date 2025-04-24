@@ -23,11 +23,6 @@ bool firstMouse = true;
 
 bool warpPointer = false;
 
-//Timer
-int currentTime = 0;  // Tiempo en horas (0-23)
-int currentMinute = 0;  // Minutos (0-59)
-int currentSecond = 0;  // Segundos (0-59)
-
 // Función para inicializar la configuración de OpenGL
 void init() {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);  // Establece el color de fondo en negro
@@ -92,7 +87,6 @@ void keyboard(unsigned char key, int x, int y) {
     glutPostRedisplay();  // Actualiza la ventana
 }
 
-
 void passiveMouseMotion(int x, int y) {
     int centerX = 600;
     int centerY = 600;
@@ -119,12 +113,37 @@ void passiveMouseMotion(int x, int y) {
     glutPostRedisplay();
 }
 
-void renderBitmapString(float x, float y, void* font, const char* string) {
-    const char* c;
-    glRasterPos2f(x, y);
-    for (c = string; *c != '\0'; c++) {
-        glutBitmapCharacter(font, *c);
-    }
+void drawHouse() {
+    glPushMatrix();
+    glColor3f(1.0f, 1.0f, 1.0f); 
+    glTranslatef(0.0f, 0.0f, 0.0f);
+    glutSolidCube(0.5);
+    glPopMatrix();
+
+    glPushMatrix();
+    glColor3f(1.0f, 0.0f, 0.0f);  
+    glTranslatef(0.0f, 0.2f, 0.0f); 
+    glRotatef(-90, 1.0f, 0.0f, 0.0f);
+    glRotatef(90, 0.0f, 0.0f, 1.0f);
+    glutSolidCone(0.5, 1, 4, 4);
+    glPopMatrix();
+}
+
+void drawTree() {
+    // Tronco del árbol (cilindro)
+    glPushMatrix();
+    glColor3f(0.55f, 0.27f, 0.07f);  
+    glTranslatef(2.0f, 0.5f, 0.0f);  
+    glRotatef(-90, 1.0f, 0.0f, 0.0f);  
+    glutSolidCone(0.3f, 1.0f, 20, 20);
+    glPopMatrix();
+
+    // Hojas del árbol (esfera)
+    glPushMatrix();
+    glColor3f(0.0f, 1.0f, 0.0f);  // Color verde
+    glTranslatef(2.0f, 1.1f, 0.0f);  // Mover arriba del tronco
+    glutSolidSphere(0.3, 20, 20);  // Esfera con radio 0.3
+    glPopMatrix();
 }
 
 
@@ -148,6 +167,8 @@ void drawObjects()
     glVertex3f(2.0f, -0.05f, 2.0f);
     glVertex3f(2.0f, -0.05f, -2.0f);
     glEnd();
+
+    drawHouse();
 }
 
 
@@ -173,31 +194,6 @@ void display() {
         0.0f, 1.0f, 0.0f);
 
     drawObjects();
-
-    //Texto--------------------
-        // Habilitar el modo ortográfico para el texto 2D
-        glDisable(GL_DEPTH_TEST);  // Desactivar el buffer de profundidad para que el texto no sea ocultado por objetos 3D
-        glMatrixMode(GL_PROJECTION);
-        glPushMatrix();
-        glLoadIdentity();
-        gluOrtho2D(0, 1200, 0, 1200);  // Establece la proyección ortográfica para 2D
-
-        glMatrixMode(GL_MODELVIEW);
-        glPushMatrix();
-        glLoadIdentity();
-
-        // Dibuja el texto en la pantalla
-        glColor3f(1.0f, 1.0f, 1.0f);  // Blanco
-        renderBitmapString(10, 900, GLUT_BITMAP_HELVETICA_18, "Simulacion Solar");
-
-        // Restaurar matrices y habilitar de nuevo el buffer de profundidad
-        glPopMatrix();
-        glMatrixMode(GL_PROJECTION);
-        glPopMatrix();
-        glMatrixMode(GL_MODELVIEW);
-
-        glEnable(GL_DEPTH_TEST);  // Habilitar el buffer de profundidad nuevamente
-
 
     glFlush();  //Final
 }
