@@ -1,10 +1,14 @@
 #include <GL/glut.h>
 #include <math.h>
 #include <stdlib.h>
+#include <iostream>
 
 
 //Constantes
 #define M_PI 3.141592f
+
+//Enums
+enum DayState { DAWN, NOON, DUSK, NIGHT };
 
 //Variables
 //Sun
@@ -23,29 +27,20 @@ bool firstMouse = true;
 
 bool warpPointer = false;
 
+DayState currentState = DAWN;
+
+
+
 // Función para inicializar la configuración de OpenGL
 void init() {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);  // Establece el color de fondo en negro
     glEnable(GL_DEPTH_TEST);
+
+
+
     glutSetCursor(GLUT_CURSOR_NONE); //Raton invisible
 }
 
-void update(int value) {
-
-
-    angle_sun += vel_sun;
-
-    if (angle_sun >= 360.0f)
-    {
-        angle_sun -= 360.0f;
-    }
-
-    rotation_sun += 1.0f;
-    if (rotation_sun > 360.0f) rotation_sun -= 360.0f;
-
-    glutPostRedisplay();
-    glutTimerFunc(16, update, 0);
-}
 
 //Movimiento del raton------------
 void keyboard(unsigned char key, int x, int y) {
@@ -113,6 +108,7 @@ void passiveMouseMotion(int x, int y) {
     glutPostRedisplay();
 }
 
+//Escena--------------------------
 void drawHouse(float x, float y) {
     glPushMatrix();
     glColor3f(1.0f, 1.0f, 1.0f); 
@@ -181,6 +177,41 @@ void drawObjects()
     drawStone(.5, .5);
 }
 
+//Estado del día
+void updateDayState() {
+    if (angle_sun >= 45 && angle_sun < 135)
+    {
+        currentState = NOON;
+    }
+    else if (angle_sun >= 135 && angle_sun < 225)
+    {
+        currentState = DUSK;
+    }
+    else if (angle_sun >= 225 && angle_sun < 315)
+    {
+        currentState = NIGHT;
+    }
+    else
+    {
+        currentState = DAWN;
+    }
+
+    switch (currentState) {
+    case DAWN:
+        printf("Estado del día: Amanecer\n");
+        break;
+    case NOON:
+        printf("Estado del día: Mediodía\n");
+        break;
+    case DUSK:
+        printf("Estado del día: Atardecer\n");
+        break;
+    case NIGHT:
+        printf("Estado del día: Noche\n");
+        break;
+    }
+}
+
 
 // Función para dibujar la escena
 void display() {
@@ -207,6 +238,26 @@ void display() {
 
     glFlush();  //Final
 }
+
+void update(int value) {
+
+
+    angle_sun += vel_sun;
+
+    if (angle_sun >= 360.0f)
+    {
+        angle_sun -= 360.0f;
+    }
+
+    rotation_sun += 1.0f;
+    if (rotation_sun > 360.0f) rotation_sun -= 360.0f;
+
+    updateDayState();
+
+    glutPostRedisplay();
+    glutTimerFunc(16, update, 0);
+}
+
 
 // Función principal para inicializar y ejecutar el programa
 int main(int argc, char** argv) {
