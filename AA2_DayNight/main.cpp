@@ -8,13 +8,13 @@
 #define M_PI 3.141592f
 
 //Enums
-enum DayState { DAWN, NOON, DUSK, NIGHT };
+enum DayState { AMANECER, MEDIODIA, ATARDECER, NOCHE };
 
 //Variables
 //Sun
 float angle_sun = 0;
-float radius_sun = 2;
-float vel_sun = 1;
+float radius_sun = 8;
+float vel_sun = 0.5;
 float rotation_sun = 0;
 
 //Camara
@@ -27,7 +27,7 @@ bool firstMouse = true;
 
 bool warpPointer = false;
 
-DayState currentState = DAWN;
+DayState currentState = AMANECER;
 
 
 
@@ -36,7 +36,30 @@ void init() {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);  // Establece el color de fondo en negro
     glEnable(GL_DEPTH_TEST);
 
+    // Habilita la iluminación
+    glEnable(GL_LIGHTING);
+    glEnable(GL_LIGHT0);
 
+    // Habilita el uso del color del material con glColor
+    glEnable(GL_COLOR_MATERIAL);
+    glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
+
+    // Define la luz
+    GLfloat light_ambient[] = { 0.2f, 0.2f, 0.2f, 1.0f };
+    GLfloat light_diffuse[] = { 0.8f, 0.8f, 0.8f, 1.0f };
+    GLfloat light_specular[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+    GLfloat light_position[] = { 5.0f, 5.0f, 5.0f, 1.0f };
+
+    glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
+    glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
+    glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+
+    // Material por defecto (puedes cambiarlo más adelante por objeto si quieres)
+    GLfloat mat_specular[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+    GLfloat mat_shininess[] = { 50.0f };
+    glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
+    glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
 
     glutSetCursor(GLUT_CURSOR_NONE); //Raton invisible
 }
@@ -158,8 +181,12 @@ void drawObjects()
     glTranslatef(x, y, 0.0f);  // Mover la esfera en un círculo
     glRotatef(rotation_sun, 0.0f, 0.0f, 1);
     glColor3f(1.0f, 1.0f, 0.0f);
-    glutWireSphere(0.1f, 20, 20);
+    glutSolidSphere(1, 20, 20);
     glPopMatrix();
+
+    //movimiento de la luz con el sol
+    GLfloat light_position[] = { x, y, 0.0f, 1.0f };
+    glLightfv(GL_LIGHT0, GL_POSITION, light_position);
 
     //Ground
     glColor3f(0.2f, 0.6f, 0.2f);  // Color verde para el plano
@@ -172,41 +199,63 @@ void drawObjects()
 
     drawHouse(2,2);
     drawHouse(1,1);
+    drawHouse(-1,-1);
     drawTree(0, 0);
+    drawTree(-1.5, -1.5);
     drawTree(2.2, 2.4);
     drawStone(.5, .5);
+    drawStone(-0.2, 0.2);
 }
 
 //Estado del día
 void updateDayState() {
+
+    float intensity = 0;
+
     if (angle_sun >= 45 && angle_sun < 135)
     {
-        currentState = NOON;
+        currentState = MEDIODIA;
+        intensity = 1;
     }
     else if (angle_sun >= 135 && angle_sun < 225)
     {
-        currentState = DUSK;
+        currentState = ATARDECER;
+        intensity = .6;
     }
     else if (angle_sun >= 225 && angle_sun < 315)
     {
-        currentState = NIGHT;
+        currentState = NOCHE;
+        intensity = 0;
     }
     else
     {
-        currentState = DAWN;
+        currentState = AMANECER;
+        intensity = .4;
     }
 
+    float r = 0.2f + 0.5f * intensity;
+    float g = 0.2f + 0.6f * intensity;
+    float b = 0.3f + 0.7f * intensity;
+
+    glClearColor(r, g, b, 1.0f);
+
+    // Ajustar intensidad general
+    GLfloat light_diffuse[] = { intensity, intensity, intensity, 1.0f };
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
+
+
+
     switch (currentState) {
-    case DAWN:
+    case AMANECER:
         printf("Estado del día: Amanecer\n");
         break;
-    case NOON:
+    case MEDIODIA:
         printf("Estado del día: Mediodía\n");
         break;
-    case DUSK:
+    case ATARDECER:
         printf("Estado del día: Atardecer\n");
         break;
-    case NIGHT:
+    case NOCHE:
         printf("Estado del día: Noche\n");
         break;
     }
@@ -235,6 +284,8 @@ void display() {
         0.0f, 1.0f, 0.0f);
 
     drawObjects();
+
+    
 
     glFlush();  //Final
 }
